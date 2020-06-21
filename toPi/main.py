@@ -1,5 +1,6 @@
 import RPi.GPIO as gpio
 import requests
+import time
 #MAKE SURE THAT THERE IS A cred.txt WITH DEVICE CREDENTIALS IN DIRECTORY
 
 #resistor set up so that when the switch is in the "off" position, it reads "on"
@@ -7,22 +8,32 @@ import requests
 f = open("/home/pi/remote_light_switch/toPi/cred.txt", "r")
 creds = f.read().split(" ")
 f.close()
-function_name = ""
+function_name = "flip"
 
-swout = 12
 swin=6
 gpio.setmode(gpio.BCM)
-gpio.setup(swout, gpio.OUT)
-gpio.setup(swin, gpio.IN)
-gpio.output(swout, gpio.HIGH)
+gpio.setup(swin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
+
+just_flipped = False
 
 URL = "https://api.particle.io/v1/devices/" + creds[0] + "/" + function_name
 
+one = False
+zero = False
 
-prevstate = 3
+prevstate = 0
 while True:
-    if((not gpio.input(swin)) and (gpio.input(swin) != prevstate)):
+    inp = gpio.input(swin)
+    if(((prevstate, inp) == (1, 1)) and (not one)):
         #requests.post(URL, data={'args':"go", 'access_token':creds[1]})
-        print("flip on")
-    prevstate = gpio.input(swin)
-    #print(prevstate, gpio.input(swin))
+        print("flipped")
+        one=True
+        zero=False
+    elif(((prevstate, inp) == (0, 0)) and (not zero)):
+        #requests.post(URL, data={'args':"go", 'access_token':creds[1]})
+        print("flipped")
+        zero=True
+        one=False
+    print(prevstate, inp)
+    prevstate = inp
+    time.sleep(0.05)
