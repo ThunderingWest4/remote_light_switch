@@ -34,6 +34,6 @@ while True:
         print("flipped")
         zero=True
         one=False
-    print(prevstate, inp)
+    #print(prevstate, inp)
     prevstate = inp
-    time.sleep(0.05)
+    #time.sleep(0.05)
